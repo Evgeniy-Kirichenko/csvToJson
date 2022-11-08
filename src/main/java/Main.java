@@ -1,6 +1,5 @@
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
@@ -26,6 +25,7 @@ import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
+
 /*
 В данном домашнем задании вам предстоит написать два конвертора: из формата CSV и XML в формат JSON, а так же парсер JSON файлов в Java классы.
 
@@ -192,8 +192,7 @@ public class Main {
         writeString(listToJson(listCSV), fileNameCsvJson);
         List<Employee> listXML = parseXML(fileNameXml);
         writeString(listToJson(listXML), fileNameXmlToJson);
-
-
+        List<Employee> list1 = jsonToList(readString(fileNameXmlToJson));
 
     }
 
@@ -269,7 +268,34 @@ public class Main {
         return node.getNodeValue();
     }
 
+    public static String readString(String filename) {
 
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            return br.readLine();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static List<Employee> jsonToList(String str) {
+        List<Employee> list = new ArrayList<>();
+        GsonBuilder builder = new GsonBuilder();
+        Gson gson = builder.create();
+        try {
+            JSONParser parser = new JSONParser();
+            JSONArray jsonArray = (JSONArray) parser.parse(str);
+            for (Object o : jsonArray) {
+                Employee employee = new Employee();
+                JSONObject object = (JSONObject) o;
+                employee = gson.fromJson(String.valueOf(o), Employee.class);
+                list.add(employee);
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
 
 }
 
